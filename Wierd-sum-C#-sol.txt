@@ -1,0 +1,36 @@
+using System;
+public class Test
+{
+    public static int[] WeirdSum(int N, int[] nArray)
+    {
+        int[] result = new int[N];int sum,temp;
+        for (int i = 0; i < N; i++)
+        {
+            sum = 0;
+            temp = nArray[i];
+            for (int j = 0; j < N; j++)
+            {
+                if (j == i) continue;
+                else sum += nArray[j];             }
+            result[i]=sum;
+            temp++;
+        }
+        return result;
+    }
+    //Non editable starts here
+    public static void Main()
+    {
+        int N = 0;
+        N = int.Parse(Console.ReadLine());
+        int[] nArray = new int[N];
+        for (int i = 0; i < N; i++)
+        {
+            nArray[i] = Convert.ToInt32(Console.ReadLine());
+        }
+        int[] result =WeirdSum(N, nArray);
+        for(int i=0;i<result.Length;i++){
+            Console.Write(result[i] + "\n");
+        }
+    }
+    //Non editable ends here
+}
