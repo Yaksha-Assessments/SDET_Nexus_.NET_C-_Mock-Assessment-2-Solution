@@ -1,0 +1,104 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+interface ISearchable
+{
+    bool SearchByKeyword(string keyword);
+}
+
+abstract class MediaItem : ISearchable
+{
+    public string Title { get; protected set; }
+    public string ReleaseDate { get; protected set; }
+    protected double Rating;
+
+    protected MediaItem(string title, string releaseDate, double rating)
+    {
+        Title = title;
+        ReleaseDate = releaseDate;
+        Rating = rating;
+    }
+
+    public abstract bool SearchByKeyword(string keyword);
+}
+
+class Movie : MediaItem
+{
+    public string Director { get; private set; }
+    private List<string> Cast;
+    public int Duration { get; private set; }
+
+    public Movie(string title, string releaseDate, double rating, string director, List<string> cast, int duration)
+        : base(title, releaseDate, rating)
+    {
+        Director = director;
+        Cast = cast;
+        Duration = duration;
+    }
+
+    public override bool SearchByKeyword(string keyword)
+    {
+        return Director.ToLower().Contains(keyword.ToLower()) ||
+               Title.ToLower().Contains(keyword.ToLower()) ||
+               Cast.Any(actor => actor.ToLower().Contains(keyword.ToLower()));
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        List<Movie> movieList = new List<Movie>();
+        int numberOfMovies = int.Parse(Console.ReadLine());
+
+        for (int i = 0; i < numberOfMovies; i++)
+        {
+            string title = Console.ReadLine();
+            string releaseDate = Console.ReadLine();
+            double rating = double.Parse(Console.ReadLine());
+            string director = Console.ReadLine();
+            int duration = int.Parse(Console.ReadLine());
+            List<string> cast = new List<string>(Console.ReadLine().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries));
+
+            movieList.Add(new Movie(title, releaseDate, rating, director, cast, duration));
+        }
+
+        string sortAttribute = Console.ReadLine();
+        string sortOrder = Console.ReadLine();
+
+        string searchKeyword = Console.ReadLine();
+
+        foreach (var movie in movieList.Where(m => m.SearchByKeyword(searchKeyword)))
+        {
+            Console.WriteLine(movie.Title);
+        }
+
+        SortByAttribute(movieList, sortAttribute, sortOrder);
+        foreach (var movie in movieList)
+        {
+            Console.WriteLine(movie.Title);
+        }
+    }
+
+    public static void SortByAttribute(List<Movie> movieList, string attribute, string order)
+    {
+        switch (attribute.ToLower())
+        {
+            case "title":
+                movieList.Sort((x, y) => string.Compare(x.Title, y.Title, StringComparison.OrdinalIgnoreCase) * (order.ToLower() == "desc" ? -1 : 1));
+                break;
+            case "release date":
+                movieList.Sort((x, y) => DateTime.Compare(DateTime.Parse(x.ReleaseDate), DateTime.Parse(y.ReleaseDate)) * (order.ToLower() == "desc" ? -1 : 1));
+                break;
+            case "director":
+                movieList.Sort((x, y) => string.Compare(x.Director, y.Director, StringComparison.OrdinalIgnoreCase) * (order.ToLower() == "desc" ? -1 : 1));
+                break;
+            case "duration":
+                movieList.Sort((x, y) => x.Duration.CompareTo(y.Duration) * (order.ToLower() == "desc" ? -1 : 1));
+                break;
+            default:
+                throw new ArgumentException("Unknown attribute for sorting");
+        }
+    }
+}
